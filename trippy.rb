@@ -17,7 +17,7 @@ live_loop :airy do
   octaves = [0, 1, 2].ring.shuffle.mirror
   arpeggio = [1, 2, 3, 4, 5, 7].shuffle.ring
   sounds = [:elec_triangle, :elec_pop, :perc_bell2].ring.shuffle
-  with_fx :slicer, phase: 1, wave: 1, pulse_width: 0.03, invert_wave: 1 do
+  with_fx :slicer, phase: 1, wave: 1, pulse_width: 0.04, invert_wave: 1 do
     8.times do
       sound1 = sounds.tick(:s)
       sound2 = sounds.tick(:s)
@@ -37,15 +37,18 @@ end
 
 
 live_loop :pan do
-  with_fx :ixi_techno, cutoff_min: 90, phase: 8 do
-    with_fx :gverb do
-      8.times do
-        4.times do
-          print @achord
-          synth :blade, note: @achord.map{|n| n + 24}, amp: 0.5 + rand(0.05)
-          sleep 1.0/ 8
-          synth :blade, note: @chord2.map{|n| n + 24}, amp: 0.4 + rand(0.05)
-          sleep 1.0/ 8
+  with_fx :slicer, phase: 1, wave: 1, pulse_width: 0.04, invert_wave: 1 do
+    with_fx :ixi_techno, cutoff_min: 90, phase: 8 do
+      with_fx :gverb do
+        pan = rand(1) - 0.5
+        8.times do
+          4.times do
+            print @achord
+            synth :blade, note: @achord.map{|n| n + 24}, amp: 0.5 + rand(0.05), pan: pan
+            sleep 1.0/ 8
+            synth :blade, note: @chord2.map{|n| n + 24}, amp: 0.4 + rand(0.05), pan: pan
+            sleep 1.0/ 8
+          end
         end
       end
     end
@@ -55,7 +58,7 @@ end
 
 live_loop :bass do
   8.times do
-    with_fx :panslicer do
+    with_fx :tanh, mix: 0.2 do
       synth :hoover, note: @achord.choose, attack: 0, release: 0.3
       synth :hollow, note: @achord.choose - 12, attack: 0, release: 0.7
       sleep 1
@@ -86,8 +89,3 @@ live_loop :drum3 do
     sleep 1.0 / 16
   end
 end
-
-
-
-
-
