@@ -1,8 +1,7 @@
 use_bpm 60
 live_loop :chord_progression, delay: -1.0 / 32 do
   @chords = [ chord(:D2, :minor), chord(:F2, :major), chord(:D2, :minor7), chord(:G1, :m11)].ring.shuffle
-  @chords2 = [chord(:a2, :minor),
-              chord(:a2, :minor7)].ring.shuffle
+  @chords2 = [chord(:a2, :minor), chord(:a2, :minor7)].ring.shuffle
   8.times do
     @achord = @chords.tick(:maj)
     4.times do
