@@ -2,7 +2,6 @@
 #Change here!
 @SAMPLES_DIR="/Users/artem/my-projects/algorave/samples/"
 use_bpm 65
-
 def my_live_loop(name)
   in_thread do
     with_fx :level, amp:0 do |level_control|
@@ -13,15 +12,13 @@ def my_live_loop(name)
     end
   end
 end
-
 def linear_slide(from, to, duration)
   ((0...duration).to_a.map {|x| x * (to - from) / duration + from}).ring
 end
 
 live_loop :chord_progression, delay: -1.0 / 32 do
-  set :chord, chord(:f2, :madd11)
-  sleep 4
-  set :chord, chord(:c2, :madd11)
+  chords = [chord(:f2, :madd11), chord(:c2, :madd11)].ring
+  set :chord, chords.tick
   sleep 4
 end
 
@@ -47,7 +44,6 @@ my_live_loop :bd do
         end
         sleep 0.25
       end
-      
     end
   end
 end
@@ -61,7 +57,7 @@ my_live_loop :bass do
     32.times do
       synth :supersaw, note: get[:chord][pattern.tick], amp: amps.tick(:v), release: 0.04 + rand(0.05), res: 0.4 + reverbs.tick(:c) / 2
       synth :supersaw, note: get[:chord][pattern.look] - 12, amp: amps.tick(:v) / 2.0, release: 0.02 + rand(0.05), res: 0.9 - reverbs.tick(:c) / 2
-      sleep 0.25
+      sleep (get[:mode] == :buildup) ? 0.25 : 0.125
     end
   end
 end
@@ -84,15 +80,12 @@ end
 my_live_loop :snare2 do
   snare(2, 0.3)
 end
-
 my_live_loop :snare3 do
   snare(3, 0.2)
 end
-
 my_live_loop :snare5 do
   snare(5, 0.1)
 end
-
 my_live_loop :snare16 do
   snare(16, 0.1)
 end
@@ -100,32 +93,41 @@ end
 my_live_loop :synth do
   pattern = [rand_i(7), rand_i(7), rand_i(7), rand_i(7)].ring
   octave = [24, 12].ring.reflect
-  with_fx :gverb, mix: 0.1, room: 5 do
-    with_fx :echo, phase: 1.0 / 3, mix: 0.3 do
-      with_fx :echo, phase: 0.75, mix: 0.8 do
-        32.times do
-          synth :pulse, pulse_width: 0.8, note: get[:chord][pattern.tick] + octave.tick(:o), amp: 0.05 + rand(0.05)
-          sleep 0.5
+  if get[:mode] == :buildup
+    echo1 = 1.0 / 3; echo2 = 0.75; slicer = 0
+  else
+    echo1 = 1.0 / 19; echo2 = 7.0/11.0; slicer = 1
+  end
+  with_fx :slicer, mix: slicer, pulse_width: 0.7, phase: 1.0 / 8 do
+    with_fx :gverb, mix: 0.1, room: 5 do
+      with_fx :echo, phase: 1.0 / 3, mix: 0.3 do
+        with_fx :echo, phase: 0.75, mix: 0.8 do
+          32.times do
+            synth :pulse, pulse_width: 0.8, note: get[:chord][pattern.tick] + octave.tick(:o), amp: 0.05 + rand(0.05)
+            sleep 0.5
+          end
         end
       end
     end
   end
 end
 
-
 my_live_loop :perc do
-  
-  amps = [0.15, 0.4].ring
   repeats_ring = [2, 3, 5].ring
   sounds = [:loop_amen, :loop_industrial].ring
   sound = sounds.tick(:s)
+  if get[:mode] ==  :buildup
+    amps = [0.15, 0.4].ring; length = 0.01
+  else
+    amps = [0.4, 0.9].ring; length = 0.03
+  end
   32.times do
     sleep 0.25
     sample sound, finish: 0.01 + rand(0.01), amp: amps.tick() + rand(0.05)
     if one_in(4)
       repeats = repeats_ring.tick(:r)
       repeats.times do
-        sample sound, finish: 0.005, amp: rand(0.1) + 0.01
+        sample sound, finish: length /2, amp: rand(amps.look()) + 0.01
         sleep 0.25 / repeats
       end
     else
@@ -144,35 +146,38 @@ my_live_loop :glitch_train do
     end
   end
 end
-
 my_live_loop :bam do
-  sample :bd_tek
-  if one_in(8)
-    division = [2, 3].choose
-    division.times do
-      sample :bd_tek, amp: 0.5, finish: 0.5
-      sleep 0.5 / division
+  krush = get[:mode] == :buildup ? 0 : 0.1
+  with_fx :distortion, mix: krush do
+    sample :bd_tek
+    if one_in(8)
+      division = [2, 3].choose
+      division.times do
+        sample :bd_tek, amp: 0.5, finish: 0.5
+        sleep 0.5 / division
+      end
+    else
+      sleep 0.5
     end
-  else
-    sleep 0.5
   end
+end
+def repetition(amp, pan)
+  sample @SAMPLES_DIR + "repetition.wav", start: 0.55, rate: 1.5, rpitch: get[:chord][[0, 1].choose]- 12 * 3.3, amp:  amp, pan: pan
+end
+
+def algorave(amp, pan)
+  sample @SAMPLES_DIR + "algorave.wav", start: 0.53, rate: 1.5,  rpitch: get[:chord][[0, 1].choose] - 12 * 3.5, amp: amp, pan: pan
 end
 
 my_live_loop :algorave do
   with_fx :echo, mix: 0.15, decay: 1.0 do
     with_fx :slicer, pulse_width: 0.75, phase: 1.0 / [8, 12].choose(), mix: 1 do
       if one_in(3)
-        sample @SAMPLES_DIR + "algorave.wav", start: 0.53, rate: 1.5,  rpitch: get[:chord][[0, 1].choose] - 12 * 3.5, amp: 0.4 +rand(0.2), pan: rand(1.6) - 0.8
+        algorave(0.4 + rand(0.2), rand(1.6) - 0.8)
         sleep 2.0
-        sample @SAMPLES_DIR + "repetition.wav", start: 0.55, rate: 1.5, rpitch: get[:chord][[0, 1].choose]- 12 * 3.3, amp:  0.4 +rand(0.2), pan: rand(1.6) - 0.8
-      else
-        sample @SAMPLES_DIR + "repetition.wav", start: 0.55, rate: 1.5, rpitch: get[:chord][[0, 1].choose]- 12 * 3.3, amp:  0.4 +rand(0.2), pan: rand(1.6) - 0.8
       end
-      if one_in(8)
-        sleep 1
-      else
-        sleep 2
-      end
+      repetition(0.4 + rand(0.2), rand(1.6) - 0.8)
+      sleep one_in(8)? 1 : 2
     end
   end
 end
@@ -182,11 +187,11 @@ my_live_loop :algorave2 do
     with_fx :reverb, room: 0.7, mix: 0.8 do
       sleep 0.5
       if one_in(32)
-        sample @SAMPLES_DIR + "algorave.wav", start: 0.53, rate: 2,  rpitch: get[:chord][[0, 1].choose] - 12 * 4, amp: 0.5 +rand(0.2)
+        algorave(0.5 +rand(0.2), 0)
         sleep 2
       end
       if one_in(16)
-        sample @SAMPLES_DIR + "repetition.wav", start: 0.55, rate: 2, rpitch: get[:chord][[0, 1].choose]- 12 * 4, amp:  0.5 +rand(0.2)
+        repetition(0.5 +rand(0.2), 0)
         sleep 2
       end
       sleep 1
@@ -194,12 +199,25 @@ my_live_loop :algorave2 do
   end
 end
 
+my_live_loop :bells do
+  with_fx :echo, mix: 0.8, phase: 2.0 / 5 do
+    sample [:tabla_tun1, :tabla_ke2].choose, finish: 0.1, rate: 2, amp: 0.1, pan: 1.0 - rand(2.0)
+    sleep 3.0 / 5
+  end
+end
+
+my_live_loop :glitch do
+  with_fx :reverb do
+    sample [:glitch_perc1, :glitch_perc2, :glitch_perc3, :glitch_perc4, :glitch_perc5].choose, finish: 0.2, pan: 0.5 - rand(1.0), amp: 0.5 + rand(0.4)
+    sleep 2.0
+  end
+end
 
 def mix()
   set_volume! 1
   set :sn_wobble_mix, 0.0
   set :sn_whammy_mix, 0.0
-  
+  set :mode, :buildup
   control get["bd_level"], amp: 1.0
   control get["snare2_level"], amp: 1.0
   control get["algorave_level"], amp: 0.5
@@ -219,10 +237,10 @@ def mix()
   control get["snare5_level"], amp: 1.0
   sleep 32
   sample :glitch_perc3
-  increase = linear_slide(0.05, 0.2, 33)
-  increase2 = linear_slide(0.5, 0.75, 33)
+  increase = linear_slide(0.05, 0.2, 41)
+  increase2 = linear_slide(0.5, 0.75, 41)
   
-  32.times do
+  40.times do
     control get["synth_level"], amp: increase.tick(:synth)
     control get["bass_level"], amp: increase2.look(:synth)
     sleep 1
@@ -244,28 +262,31 @@ def mix()
   sleep 64
   sample :glitch_perc4
   increase = linear_slide(0, 0.4, 33)
-  increase2 = linear_slide(0.07, 0.3, 33)
+  increase2 = linear_slide(0.07, 0.2, 33)
   increase3 = linear_slide(0.75, 0.85, 33)
+  control get["algorave2_level"], amp: 0.3
+  set :sn_wobble_mix, 0.7
+  set :sn_whammy_mix, 0.2
+  
   32.times do
     control get["algorave_level"], amp: increase.tick(:ar)
-    control get["algorave2_level"], amp: increase.look(:ar)
     control get["synth_level"], amp: increase2.look(:ar)
     control get["bass_level"], amp: increase3.look(:ar)
     sleep 1
   end
+  set :mode, :culmination
+  set_volume! 1.3
   sample :glitch_perc3
-  set :sn_whammy_mix, 0.45
-  set :sn_wobble_mix, 0.7
   control get["glitch_train_level"], amp: 0.7
-  control get["synth_level"], amp: 0
-  sleep 16
-  sample :drum_cowbell, amp: 0.05, finish: 0.5
+  control get["glitch_level"], amp: 0.35
+  
   control get["snare2_level"], amp: 0.0
   control get["snare3_level"], amp: 0.0
   control get["snare5_level"], amp: 0.0
   control get["snare16_level"], amp: 0.0
   control get["algorave2_level"], amp: 0
-  control get["algorave_level"], amp: 0.2
+  control get["bells_level"], amp: 1
+  sleep 64
   
   decrease = linear_slide(0.0, 1.0, 17).reverse
   decrease2 = linear_slide(0.1, 0.85, 17).reverse
@@ -277,7 +298,6 @@ def mix()
     sleep 1
   end
   sample :drum_cowbell, amp: 0.05, finish: 0.5
-  control get["snare2_level"], amp: 0.0
   control get["bd_level"], amp: 0.1
   decrease = linear_slide(0.02, 1.0, 33).reverse
   
@@ -287,14 +307,12 @@ def mix()
     control get["bd_level"], amp: decrease.look(:ar3) * 0.1
     control get["perc_level"], amp: decrease.look(:ar3)
     control get["bam_level"], amp: decrease.look(:ar3)
+    control get["glitch_level"], amp: 0.5 * decrease.look(:ar3) + 0.1
     sleep 1
   end
   set_volume! 0
   set :sn_wobble_mix, 0.0
   set :sn_whammy_mix, 0.0
-  
-  
 end
-
-sleep 1
+sleep 7.92
 mix
