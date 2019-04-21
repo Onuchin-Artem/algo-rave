@@ -1,3 +1,4 @@
+
 use_bpm 60
 def my_live_loop(name)
   in_thread do
@@ -216,7 +217,7 @@ def mix()
   end
   control get["pan_level"], amp: 0.5
   control get["glitch_level"], amp: 1
-  sleep 20
+  sleep 23
   decrease = linear_slide(0.3, 1.0, 22).reverse
   control get["pan_level"], amp: 0
   control get["airy_level"], amp: 0
@@ -251,5 +252,5 @@ def mix()
   end
 end
 
-sleep 0.2
+sleep 7.92
 mix
