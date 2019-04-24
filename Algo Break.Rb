@@ -32,7 +32,7 @@ end
 my_live_loop :kick do
   with_fx :ixi_techno, mix: get[:kick_ixi], cutoff_min: 80, cutoff_max: 110, phase: 16, phase_offset: 0.5 do
     with_fx :whammy, mix: get[:kick_whammy] do
-      with_fx :reverb, room: 0.9, mix: 0.5 do
+      with_fx :reverb, room: 0.6, mix: 0.4 do
         with_fx :compressor, mix: 0.5 do
           with_fx :tanh, mix: 0.1 + rand(0.05) do
             16.times do
@@ -56,7 +56,7 @@ end
 
 my_live_loop :kick3 do
   with_fx :ixi_techno, mix: get[:kick_ixi], cutoff_min: 90, cutoff_max: 120, phase: 16, phase_offset: 0.0 do
-    with_fx :reverb, mix: 0.3, room: 0.1 do
+    with_fx :reverb, mix: 0.1, room: 0.1 do
       32.times do
         sample :bd_tek, amp: [0.5, 1].ring.tick + rand(0.05), rpitch: -12 unless tick(:w) % 4 == 2
         sleep 1.0 / 4.0
@@ -67,7 +67,7 @@ end
 
 my_live_loop :kick2 do
   with_fx :ixi_techno, mix: get[:kick_ixi], cutoff_min: 90, cutoff_max: 120, phase: 16, phase_offset: 0.0 do
-    with_fx :reverb, mix: 0.3, room: 0.1  do
+    with_fx :reverb, mix: 0.1, room: 0.1  do
       24.times do
         sample :bd_tek, amp: [0.4, 0.8].ring.tick + rand(0.05), rpitch: -10 if tick(:w) % 3 == 2
         sleep 1.0 / 3.0
