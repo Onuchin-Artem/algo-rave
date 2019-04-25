@@ -19,7 +19,7 @@ def quicksort(array)
   if (array.empty?)
     return array
   end
-  note = array[0]
+  note = array.choose
   do_play(note)
   return quicksort(array.select {|x| x < note}) +
     [note]+
