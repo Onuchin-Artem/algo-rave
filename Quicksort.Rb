@@ -22,7 +22,7 @@ def quicksort(array)
   note = array.choose
   do_play(note)
   return quicksort(array.select {|x| x < note}) +
-    [note]+
+    [note] +
     quicksort(array.select {|x| x > note})
 end
 
@@ -93,7 +93,5 @@ sleep 32
 set :rules, 1.0
 sleep 32
 32.times do
-  set_volume! (line 1.0, 0, 33).ring.tick(:m)
+  set_volume! (line 1.0, 0.0, steps: 33).tick(:m)
 end
-
-
