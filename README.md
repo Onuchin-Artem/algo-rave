@@ -8,3 +8,4 @@ Algorithmic electronic music.
  - We Love Repetition [code](https://github.com/Onuchin-Artem/algo-rave/blob/master/We-Love-Repetition.Rb) [track](https://soundcloud.com/artem-onuchin/we-love-repetition)
  - Sky [code](https://github.com/Onuchin-Artem/algo-rave/blob/master/Sky.Rb) [track](https://soundcloud.com/artem-onuchin/sky)
  - Algo Break [code](https://github.com/Onuchin-Artem/algo-rave/blob/master/Algo%20Break.Rb) [track](https://soundcloud.com/artem-onuchin/algo-break)
+ - Qucksort [code](https://github.com/Onuchin-Artem/algo-rave/blob/master/Quicksort.Rb) [track](https://soundcloud.com/artem-onuchin/quicksort)
