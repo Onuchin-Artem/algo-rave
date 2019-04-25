@@ -19,7 +19,7 @@ def do_play(number)
 end
 
 live_loop :quicksort, delay: -1.0 / 32 do
-  with_fx :level, amp: amp do
+  with_fx :level, amp: 0.4 do
     with_fx :nrlpf, res: 0.1  do
       set :chord, [chord(:a2, :minor7, num_octaves: 4), chord(:C2, :m9, num_octaves: 4)].ring.tick
       array = (1..64).to_a.shuffle
