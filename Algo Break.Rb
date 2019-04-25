@@ -1,4 +1,4 @@
-use_bpm 92
+use_bpm 95
 set :kick_whammy, 0.6
 set :kick_ixi, 0.5
 set :boom_haf_wait, 1.0
@@ -32,7 +32,7 @@ end
 my_live_loop :kick do
   with_fx :ixi_techno, mix: get[:kick_ixi], cutoff_min: 80, cutoff_max: 110, phase: 16, phase_offset: 0.5 do
     with_fx :whammy, mix: get[:kick_whammy] do
-      with_fx :reverb, room: 0.6, mix: 0.4 do
+      with_fx :reverb, room: 0.5, mix: 0.4 do
         with_fx :compressor, mix: 0.5 do
           with_fx :tanh, mix: 0.1 + rand(0.05) do
             16.times do
@@ -56,34 +56,28 @@ end
 
 my_live_loop :kick3 do
   with_fx :ixi_techno, mix: get[:kick_ixi], cutoff_min: 90, cutoff_max: 120, phase: 16, phase_offset: 0.0 do
-    with_fx :reverb, mix: 0.1, room: 0.1 do
-      32.times do
-        sample :bd_tek, amp: [0.5, 1].ring.tick + rand(0.05), rpitch: -12 unless tick(:w) % 4 == 2
-        sleep 1.0 / 4.0
-      end
+    32.times do
+      sample :bd_tek, amp: [0.5, 1].ring.tick + rand(0.05), rpitch: -12 unless tick(:w) % 4 == 2
+      sleep 1.0 / 4.0
     end
   end
 end
 
 my_live_loop :kick2 do
   with_fx :ixi_techno, mix: get[:kick_ixi], cutoff_min: 90, cutoff_max: 120, phase: 16, phase_offset: 0.0 do
-    with_fx :reverb, mix: 0.1, room: 0.1  do
-      24.times do
-        sample :bd_tek, amp: [0.4, 0.8].ring.tick + rand(0.05), rpitch: -10 if tick(:w) % 3 == 2
-        sleep 1.0 / 3.0
-      end
+    24.times do
+      sample :bd_tek, amp: [0.4, 0.8].ring.tick + rand(0.05), rpitch: -10 if tick(:w) % 3 == 2
+      sleep 1.0 / 3.0
     end
-    
   end
 end
 
 my_live_loop :glitch do
   sleep 2
-  sample :glitch_perc4, rate: [0.2, 0.1].choose, finish: 1, start: 0.2
-  sleep 2
-end
-
-def pop()
+  with_fx :echo, phase: 0.5, mix: 0.5 do
+    sample :glitch_perc4, rate: [0.2, 0.1].choose, finish: 1, start: 0.2, rpitch: 40, pan: rand(2.0) -1.0
+    sleep 2
+  end
 end
 
 my_live_loop :pop do
@@ -155,16 +149,34 @@ my_live_loop :bass2 do
 end
 
 
-def turnoff_sounds()
-  sounds = ["rim_level", "rim2_level", "kick3_level", "kick2_level", "kick_level", "pop_level", "pop2_level", "boom_level"]
+my_live_loop :boom2 do
+  sleep 3.5
+  synth :bnoise, release: 0.07 + rand(0.5), note: get[:chord][4] + 36
+  sleep 0.25
+  synth :pnoise, release: 0.08 + rand(0.5), note: get[:chord][1] + 36
+  sleep 0.25
+end
+
+my_live_loop :solo do
+  notes = [1, 3, 4, 1, 5, 6].ring
+  octaves = [0, 12, 24].ring.reverse
+  with_fx :echo, mix: 0.9, phase: 0.25, decay: 4 do
+    with_fx :echo, mix: 0.8,  phase: 3.0 / 4, decay: 4 do
+      8.times do
+        sleep 0.5
+        synth :pluck, note: get[:chord][notes.tick] + 36 + octaves.look, release: 0.1
+      end
+    end
+  end
 end
 
 
 def mix()
   set_volume! 1
-  control get["pad_level"], amp: 0.5
+  
+  control get["pad_level"], amp: 0.7
   sleep 17
-  control get["bass1_level"], amp: 0.5
+  control get["bass1_level"], amp: 0.7
   control get["bass2_level"], amp: 0.4
   sleep 16
   control get["kick_level"], amp: 0.2
@@ -175,8 +187,10 @@ def mix()
   control get["rim_level"], amp: 0.4
   control get["rim2_level"], amp: 0.4
   control get["boom_level"], amp: 0.5
+  control get["boom2_level"], amp: 0.4
+  
   sleep 32
-  control get["glitch_level"], amp: 2.0
+  control get["glitch_level"], amp: 1.0
   set :boom_haf_wait, 0.5
   control get["pop_level"], amp: 0.8
   control get["pop2_level"], amp: 0.8
@@ -228,12 +242,26 @@ def mix()
   control get["pop_level"], amp: 0.1
   control get["pop2_level"], amp: 0.1
   control get["boom_level"], amp: 0.1
-  sleep 17
+  set :kick_whammy, 0.05
+  sleep 8
+  increase = linear_slide(0, 0.08, 9)
+  6.times do
+    sleep 1
+    control get["solo_level"], amp: increase.tick(:solo)
+  end
+  control get["solo_level"], amp: 0.1
+  control get["glitch_level"], amp: 0.0
+  control get["kick_level"], amp: 0.1
+  control get["kick2_level"], amp: 0.3
+  sleep 32
+  control get["pad_level"], amp: 0.1
+  control get["bass1_level"], amp: 0.1
+  control get["bass2_level"], amp: 0.4
+  control get["boom2_level"], amp: 0.1
+  
+  sleep 26
   set_volume! 0
 end
 
 sleep 6.92
 mix
-
-
-
