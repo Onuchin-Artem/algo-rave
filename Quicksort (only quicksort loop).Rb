@@ -5,7 +5,7 @@ def quicksort(array)
   note = array[0]
   do_play(note)
   return quicksort(array.select {|x| x < note}) +
-    [note]+
+    [note] +
     quicksort(array.select {|x| x > note})
 end
 
