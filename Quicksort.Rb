@@ -175,8 +175,9 @@ set :quick, 1.0
 sleep 32
 set :rules, 1.0
 sleep 32
-16.times do
-  set_volume! (line 2.0, 0.0, steps: 16).ring.tick(:m)
+32.times do
+  set_volume! (line 2.0, 0.0, steps: 33).ring.tick(:m)
+  sleep 1
 end
 
 set_volume! 0
