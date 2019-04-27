@@ -47,8 +47,8 @@ live_loop :bass do
     with_fx :ixi_techno, mix: 0.3 do
       64.times do
         i = tick
-        synth :subpulse, release: 0.8, note: get[:chord][0] - 36 if i % 4 == 2
-        synth :tb303, release: rand(0.04), note: get[:chord][0] - 36 if i % 4 == 2 or (i % 16 > 12)
+        synth :subpulse, amp: 2, release: 0.8, note: get[:chord][0] - 36 if i % 4 == 2
+        synth :tb303, amp: 2, release: rand(0.04), note: get[:chord][0] - 36 if i % 4 == 2 or (i % 16 > 12)
         sleep 0.125
       end
     end
@@ -74,12 +74,12 @@ end
 live_loop :drum do
   8.times do
     i = tick
-    sample :bd_tek, amp: 1, rate: 1 + rand(0.3), pan: (line -1, 1, steps: 16).tick(:p) if i % 2 == 0 and  i % 32 < 24
-    sample :bd_tek, amp: rand(1.0) unless i % 16 < 8
+    sample :bd_tek, amp: 3, rate: 1 + rand(0.3), pan: (line -1, 1, steps: 16).tick(:p) if i % 4 == 0 and  i % 32 < 24
+    sample :bd_tek, amp: rand(3), rate: 1 - rand(0.2) unless i % 16 < 8
     sample :bd_gas, amp: 2 if i % 2 == 0
-    synth :dull_bell, note: :a5, amp: [1, 0.6].ring.tick(:b), release: 0.05 + rand(0.1) if i % 4== 2 or i % 4== 1 or (i % 16 > 10 and i % 3 ==0)
-    synth :cnoise, note: :a3, amp: 2, release: rand(0.1) if i % 8== 6
-    synth :bnoise, note: :a5, amp: 2, release: 0.1 if i % 8== 0
+    synth :dull_bell, note: :a5, amp: [2, 1].ring.tick(:b), release: 0.05 + rand(0.1) if i % 4== 2 or i % 4== 1 or (i % 16 > 10 and i % 3 ==0)
+    synth :cnoise, note: :a3, amp: 2, release: rand(0.1) if i % 4== 0 and i % 3 != 0
+    synth :bnoise, note: :a5, amp: 2, release: 0.1 if i % 8== 6
     sleep 0.125
   end
 end
