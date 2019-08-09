@@ -1,9 +1,9 @@
 live_loop :kick do
   8.times do |i|
     sample :bd_mehackit if i % 2 == 0
-    synth :subpulse, note: :a0, release: rand(0.1) + 0.03
-    sample :bd_boom if i == 0
-    sample :bd_tek if i == 0
+    synth :subpulse, note: :a1, release: rand(0.1) + 0.1
+    sample :bd_boom if i %4== 0
+    sample :bd_tek if i % 4 == 0
     
     sleep 0.25
   end
@@ -13,7 +13,7 @@ live_loop :kick2 do
   sync "/live_loop/kick"
   with_fx :echo, decay: 0.25, phase: 0.125, mix: line(0, 0.5, steps: 64).mirror.tick do
     7.times do |i|
-      synth :cnoise, note: :a0, release: 0.02, decay: 0.01 if i == 3 or i == 5
+      synth :cnoise, note: :a0, release: 0.02, decay: 0.01 if i == 3 or i == 5 or i == 2
       sample :elec_chime, rate: 2.3 + rand(0.1), hpf: 90 + rand_i(20), finish: 0.1 if i ==6
       sleep 0.25
     end
@@ -33,7 +33,12 @@ end
 
 live_loop :kick7 do
   sync "/live_loop/kick"
+  synth :bnoise, release: 0.5
+  sleep 0.5
+  synth :bnoise, release: 0.1
+  sleep 0.75
   synth :bnoise, release: 0.2
+  
 end
 
 live_loop :kick4 do
@@ -43,7 +48,7 @@ live_loop :kick4 do
     with_fx :flanger, mix: [0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.3, 0.5, 0.8].ring.mirror[e] do
       
       31.times do |i|
-        synth :blade, note: :e3, amp: 0.6, vibrato_depth: line(0.1, 2.75, steps: 16).mirror.tick if i % 8 ==7 or i % 6 ==0
+        synth :blade, note: [:e3, :gs3].ring[i], amp: 0.6, vibrato_depth: line(0.1, 2.75, steps: 16).mirror.tick if i % 8 ==7 or i % 6 ==0
         
         sleep 1.0/8
       end
