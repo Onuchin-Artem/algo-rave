@@ -31,6 +31,30 @@ live_loop :kick3 do
   end
 end
 
+
+live_loop :kick89 do
+  sync "/live_loop/kick"
+  with_fx :bpf, centre: line(50, 120, steps: 32).tick do
+    7.times do
+      synth :chipnoise, release: 0.05, decay: 0.01
+      sleep 0.25 / 3
+      synth :chipnoise, release: 0.05, decay: 0.01
+      sleep 0.5 / 3
+    end
+    synth :chipnoise, release: 0.1, decay: 0.01
+    
+  end
+  
+end
+
+live_loop :kick98 do
+  sync "/live_loop/kick"
+  with_fx :gverb, mix: line(0, 1, steps: 128).mirror.tick(:m) do
+    sleep 0.2
+    synth :blade, note: [:b3, :gs3, :cs4, :ds4].ring.tick, release: 2.5, attack: 0, decay: 1, decay_level: 0.1, amp: 0.2 + rand(0.1)
+  end
+end
+
 live_loop :kick7 do
   sync "/live_loop/kick"
   synth :bnoise, release: 0.5
@@ -55,4 +79,22 @@ live_loop :kick4 do
     end
   end
 end
+
+
+live_loop :kick22 do
+  sync "/live_loop/kick"
+  with_fx :ixi_techno, mix: 0.5 do
+    synth :bnoise, release: 0.02,res: 0.99
+    
+    with_fx :bpf, centre: 100 do
+      
+      15.times do
+        sleep 0.125
+        synth :bnoise, release: 0.02,res: 0.99
+        
+      end
+    end
+  end
+end
+
 
