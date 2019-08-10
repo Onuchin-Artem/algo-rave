@@ -24,7 +24,7 @@ live_loop :kick3 do
   sync "/live_loop/kick"
   with_fx :reverb, mix: 0.8 do
     5.times do |i|
-      synth :fm, note: [:a2, :fs2].ring.tick, release: 0.4, depth: 1 + line(1, 5, steps: 128).mirror.look, decay: 0.2 if i == 2
+      synth :fm, note: [:a2].ring.tick, release: 0.01, depth: 5 + line(1, 5, steps: 128).mirror.look, decay: 0.2
       
       sleep 1.0/3
     end
@@ -49,10 +49,10 @@ end
 
 live_loop :kick98 do
   sync "/live_loop/kick"
-  with_fx :gverb, mix: line(0, 1, steps: 128).mirror.tick(:m) do
-    sleep 0.2
-    synth :blade, note: [:b3, :gs3, :cs4, :ds4].ring.tick, release: 2.5, attack: 0, decay: 1, decay_level: 0.1, amp: 0.2 + rand(0.1)
-  end
+  # with_fx :gverb, mix: line(0, 1, steps: 128).mirror.tick(:m) do
+  sleep 0.2
+  synth :blade, note: [:b3, :gs3, :cs4, :ds4].ring.tick, release: 0.1, attack: 0, decay: 1, decay_level: 0.1, amp: 0.5 + rand(0.1)
+  # end
 end
 
 live_loop :kick7 do
@@ -72,9 +72,9 @@ live_loop :kick4 do
     with_fx :flanger, mix: [0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.3, 0.5, 0.8].ring.mirror[e] do
       
       31.times do |i|
-        synth :blade, note: [:e3, :gs3].ring[i], amp: 0.6, vibrato_depth: line(0.1, 2.75, steps: 16).mirror.tick if i % 8 ==7 or i % 6 ==0
+        synth :tb303, note: [ :gs2].ring[i], amp: 0.4, release: 0.03, pulse_width: line(0.01, 0.99, steps: 16).mirror.tick if i % 8 ==7 or i % 6 ==0 or i % 16 > 14
         
-        sleep 1.0/8
+        sleep 1.0/16
       end
     end
   end
@@ -96,5 +96,4 @@ live_loop :kick22 do
     end
   end
 end
-
 
